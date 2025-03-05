@@ -40,33 +40,31 @@ def get_changed_files(branch: str) -> list[str]:
     return result.stdout.strip().splitlines()
 
 def get_diff(file_path: str, branch: str) -> str:
-    # Corrected the git diff command to specify the branch and get differences
+    # Corrected the git diff command to specify the branch and file path for differences
     result = subprocess.run(
-        ["git", "diff", f"master..{branch}"],
+        ["git", "diff", f"master..{branch}", "--", file_path],
         stdout=subprocess.PIPE,
         text=True,
     )
     return result.stdout
-
 def main():
-    branch = "develop"  # برنچ مورد نظر رو وارد کن
+    branch = "develop"
     files = get_changed_files(branch)
-    print(f"تغییرات فایل‌ها در برنچ {branch}:")
-    for file in files:
-        print(f"- {file}")
-    
-    print("\nساختار پروژه:")
     structure = get_project_structure(".")
-    # print(structure)
 
-    for file in files:
-        print(f"\nبررسی تغییرات فایل: {file}")
-        diff_content = get_diff(file, branch)
-        with open("changes.txt", "w") as f:
+    with open("changes.txt", "w") as f:  # Open the file once for writing
+        # Write the project structure first
+        f.write("Project Structure:\n")
+        f.write(structure)
+        f.write("\n")  # Add a newline after the project structure
+
+        # Write diffs for each changed file
+        for file in files:
+            # Add a header to distinguish changes for each file
+            f.write(f"\n{'-'*40}\nChanges for {file}:\n{'-'*40}\n")
+            diff_content = get_diff(file, branch)
             f.write(diff_content)
-        # print(f"\nتغییرات فایل {file} در برنچ {branch}:\n{diff_content}")
-        
-        print(f"\nکدهای تابع/کلاس مورد نیاز برای بررسی بیشتر:\n")
+            f.write("\n")  # Add a newline after each file's diff
 
 if __name__ == "__main__":
     main()
