@@ -58,6 +58,10 @@ def main():
 
     with open("changes.txt", "w") as f:  # Open the file once for writing
         # Write the project structure first
+        with open("prompt.txt", 'r') as file:
+            prompt = file.read()
+            f.write(prompt)
+            f.write("--------------------\n")
         f.write("Project Structure:\n")
         f.write(structure)
         f.write("\n")  # Add a newline after the project structure
