@@ -30,26 +30,30 @@ def get_project_structure(root_dir: str) -> str:
     
     return structure
 
-def get_changed_files(branch: str) -> list[str]:
-    # git diff master..develop
+def get_changed_files(branch1: str, branch2: str) -> list[str]:
+    # git diff between two branches
     result = subprocess.run(
-        ["git", "diff", "--name-only", f"master..{branch}"],
+        ["git", "diff", "--name-only", f"{branch1}..{branch2}"],
         stdout=subprocess.PIPE,
         text=True,
     )
     return result.stdout.strip().splitlines()
 
-def get_diff(file_path: str, branch: str) -> str:
-    # Corrected the git diff command to specify the branch and file path for differences
+def get_diff(file_path: str, branch1: str, branch2: str) -> str:
+    # Corrected the git diff command to specify the branches and file path for differences
     result = subprocess.run(
-        ["git", "diff", f"master..{branch}", "--", file_path],
+        ["git", "diff", f"{branch1}..{branch2}", "--", file_path],
         stdout=subprocess.PIPE,
         text=True,
     )
     return result.stdout
+
 def main():
-    branch = "develop"
-    files = get_changed_files(branch)
+    # Accept branch names for comparison
+    branch1 = input("Enter the name of the first branch (e.g., master): ")
+    branch2 = input("Enter the name of the second branch (e.g., develop): ")
+
+    files = get_changed_files(branch1, branch2)
     structure = get_project_structure(".")
 
     with open("changes.txt", "w") as f:  # Open the file once for writing
@@ -62,7 +66,7 @@ def main():
         for file in files:
             # Add a header to distinguish changes for each file
             f.write(f"\n{'-'*40}\nChanges for {file}:\n{'-'*40}\n")
-            diff_content = get_diff(file, branch)
+            diff_content = get_diff(file, branch1, branch2)
             f.write(diff_content)
             f.write("\n")  # Add a newline after each file's diff
 
